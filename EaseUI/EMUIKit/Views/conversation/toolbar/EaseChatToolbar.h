@@ -132,6 +132,8 @@
  */
 - (void)didSendText:(NSString *)text withExt:(NSDictionary*)ext;
 
+- (void)didSendTextMessageWithTextView:(UITextView *)textView;
+
 //BQMM集成
 /**
  *  发送表情MM大表情

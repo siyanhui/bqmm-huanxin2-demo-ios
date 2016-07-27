@@ -544,9 +544,15 @@
     if ([text isEqualToString:@"\n"]) {
         if ([self.delegate respondsToSelector:@selector(didSendText:)]) {
             //BQMM集成
-            [self.delegate didSendText:textView.mmText];
+            NSString *sendStr = self.inputTextView.characterMMText;
+            sendStr = [sendStr stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            if (![sendStr isEqualToString:@""]) {
+                if ([self.delegate respondsToSelector:@selector(didSendTextMessageWithTextView:)]) {
+                    [self.delegate didSendTextMessageWithTextView:self.inputTextView];
+                }
+            }
             self.inputTextView.text = @"";
-            [self _willShowInputTextViewToHeight:[self _getTextViewContentH:self.inputTextView]];;
+            [self _willShowInputTextViewToHeight:[self _getTextViewContentH:self.inputTextView]];
         }
         
         return NO;
@@ -556,13 +562,6 @@
 
 - (void)textViewDidChange:(UITextView *)textView
 {
-    //BQMM集成
-    if (textView.markedTextRange == nil) {
-        NSRange selectedRange = textView.selectedRange;
-        textView.mmText = textView.mmText;
-        textView.selectedRange = selectedRange;
-    }
-
     [self _willShowInputTextViewToHeight:[self _getTextViewContentH:textView]];
 }
 
@@ -880,10 +879,17 @@
 
 - (void)didSendWithInput:(UIResponder<UITextInput> *)input
 {
-    if ([self.delegate respondsToSelector:@selector(didSendText:)]) {
-        [self.delegate didSendText:_inputTextView.mmText];
-        self.inputTextView.text = @"";
-        [self _willShowInputTextViewToHeight:[self _getTextViewContentH:_inputTextView]];
+    if ([input isKindOfClass:[UITextView class]]) {
+        UITextView *textView = (UITextView *)input;
+        NSString *sendStr = textView.characterMMText;
+        sendStr = [sendStr stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if (![sendStr isEqualToString:@""]) {
+            if ([self.delegate respondsToSelector:@selector(didSendTextMessageWithTextView:)]) {
+                [self.delegate didSendTextMessageWithTextView:textView];
+                self.inputTextView.text = @"";
+                [self _willShowInputTextViewToHeight:[self _getTextViewContentH:_inputTextView]];
+            }
+        }
     }
 }
 

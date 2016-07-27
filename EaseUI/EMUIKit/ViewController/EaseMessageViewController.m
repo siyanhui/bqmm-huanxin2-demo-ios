@@ -16,7 +16,7 @@
 
 //BQMM集成
 #import <BQMM/BQMM.h>
-#import "MMTextParser+ExtData.h"
+#import "MMTextParser.h"
 
 #define KHintAdjustY    50
 
@@ -1102,6 +1102,16 @@
     }
 }
 
+- (void)didSendTextMessageWithTextView:(UITextView *)textView {
+    NSString *sendStr = textView.characterMMText;
+    NSMutableDictionary *ext = [NSMutableDictionary dictionary];
+    NSArray *textImgArray = textView.textImgArray;
+    NSDictionary *mmExt = @{@"txt_msgType":@"emojitype",
+                            @"msg_data":[MMTextParser extDataWithTextImageArray:textImgArray]};;
+    [ext addEntriesFromDictionary:mmExt];
+    [self sendTextMessage:sendStr withExt:mmExt];
+}
+
 //BQMM集成
 - (void)didSendMMFace:(MMEmoji *)emoji
 {
@@ -1715,29 +1725,6 @@
 
 #pragma mark - send message
 //BQMM集成
-- (void)sendTextMessage:(NSString *)text
-{
-    NSString *text_ = [text stringByReplacingOccurrencesOfString:@"\a" withString:@""];
-    [MMTextParser localParseMMText:text_ completionHandler:^(NSArray *textImgArray) {
-        NSDictionary *mmExt = nil;
-        NSString *sendStr = @"";
-        for (id obj in textImgArray) {
-            if ([obj isKindOfClass:[MMEmoji class]]) {
-                MMEmoji *emoji = (MMEmoji*)obj;
-                if (!mmExt) {
-                    mmExt = @{@"txt_msgType":@"emojitype",
-                              @"msg_data":[MMTextParser extDataWithTextImageArray:textImgArray]};
-                }
-                sendStr = [sendStr stringByAppendingString:[NSString stringWithFormat:@"[%@]", emoji.emojiName]];
-            }
-            else if ([obj isKindOfClass:[NSString class]]) {
-                sendStr = [sendStr stringByAppendingString:obj];
-            }
-        }    [self sendTextMessage:sendStr withExt:mmExt];
-    }];
-
-}
-
 - (void)sendTextMessage:(NSString *)text withExt:(NSDictionary*)ext
 {
     NSDictionary *_ext = [[EaseMessageHelper structureEaseMessageHelperExt:ext

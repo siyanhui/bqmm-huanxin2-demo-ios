@@ -17,7 +17,7 @@
 #import "RemoveAfterReadCell.h"
 
 //BQMM集成
-#import "MMTextParser+ExtData.h"
+#import "MMTextParser.h"
 
 @interface ChatViewController ()<UIAlertViewDelegate>
 {
