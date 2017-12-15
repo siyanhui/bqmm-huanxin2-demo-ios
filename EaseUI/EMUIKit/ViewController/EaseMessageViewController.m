@@ -17,7 +17,7 @@
 //BQMM集成
 #import <BQMM/BQMM.h>
 #import "MMTextParser.h"
-
+#import "MMGifManager.h"
 #define KHintAdjustY    50
 
 @interface EaseMessageViewController ()
@@ -110,6 +110,14 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     [self configEaseMessageHelper];
+    
+    
+    //BQMM集成   设置gif搜索相关
+    [[MMGifManager defaultManager] setSearchModeEnabled:true withInputView:((EaseChatToolbar *)self.chatToolbar).inputTextView];
+    [[MMGifManager defaultManager] setSearchUiVisible:true withAttatchedView:self.chatToolbar];
+    [MMGifManager defaultManager].selectedHandler = ^(MMGif * _Nullable gif) {
+        [self didSendGifMessage:gif];
+    };
 }
 
 - (void)didReceiveMemoryWarning {
@@ -944,6 +952,10 @@
     }
 }
 
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [self tableView:tableView heightForRowAtIndexPath:indexPath];
+}
+
 #pragma mark - UIImagePickerControllerDelegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -1113,6 +1125,29 @@
 }
 
 //BQMM集成
+- (void)didClickGifTab {
+    //点击gif tab 后应该保证搜索模式是打开的 搜索UI是允许显示的
+    [[MMGifManager defaultManager] setSearchModeEnabled:true withInputView:((EaseChatToolbar *)self.chatToolbar).inputTextView];
+    [[MMGifManager defaultManager] setSearchUiVisible:true withAttatchedView:self.chatToolbar];
+    [[MMGifManager defaultManager] showTrending];
+}
+
+-(void)didSendGifMessage:(MMGif *)gif {
+    NSString *sendStr = [@"[" stringByAppendingFormat:@"%@]", gif.text];
+    NSDictionary *msgData = @{@"sticker_url": gif.mainImage, @"is_gif": (gif.isAnimated ? @"1" : @"0"), @"data_id": gif.imageId,@"w": @((float)gif.size.width), @"h": @((float)gif.size.height)};
+    NSDictionary *extDic = @{@"txt_msgType":@"webtype",
+                             @"msg_data":msgData
+                             };
+    EMMessage *message = [EaseSDKHelper sendTextMessage:sendStr
+                                                     to:self.conversation.chatter
+                                            messageType:[self _messageTypeFromConversationType]
+                                      requireEncryption:NO
+                                             messageExt:extDic];
+    [self addMessageToDataSource:message
+                        progress:nil];
+    
+}
+
 - (void)didSendMMFace:(MMEmoji *)emoji
 {
     [self sendMMFaceMessage:emoji];
@@ -1690,16 +1725,15 @@
                      progress:(id<IEMChatProgressDelegate>)progress
 {
     [self.messsagesSource addObject:message];
-    
     __weak EaseMessageViewController *weakSelf = self;
     dispatch_async(_messageQueue, ^{
         NSArray *messages = [weakSelf formatMessages:@[message]];
-        
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf.dataArray addObjectsFromArray:messages];
             [weakSelf.tableView reloadData];
             [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[weakSelf.dataArray count] - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
         });
+        
     });
 }
 

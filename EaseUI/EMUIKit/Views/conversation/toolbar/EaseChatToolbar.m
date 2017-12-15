@@ -202,8 +202,6 @@
     EaseChatToolbarItem *moreItem = [[EaseChatToolbarItem alloc] initWithButton:self.moreButton withView:self.moreView];
     
     [self setInputViewRightItems:@[faceItem, moreItem]];
-    //BQMM集成
-    [[MMEmotionCentre defaultCentre] shouldShowShotcutPopoverAboveView:self.faceButton withInput:self.inputTextView];
 }
 
 - (void)dealloc
@@ -861,6 +859,12 @@
 //BQMM集成
 //表情MM代理
 #pragma mark - *MMEmotionCentreDelegate
+- (void)didClickGifTab {
+    if ([self.delegate respondsToSelector:@selector(didClickGifTab)]) {
+        [self.delegate didClickGifTab];
+    }
+}
+
 - (void)didSelectEmoji:(MMEmoji *)emoji
 {
     if ([self.delegate respondsToSelector:@selector(didSendMMFace:)]) {

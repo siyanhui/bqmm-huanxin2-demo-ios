@@ -91,6 +91,7 @@
 
 //BQMM集成
 @property (strong, nonatomic) NSDictionary *mmExt;
+@property (nonatomic) CGSize gifSize;
 
 - (instancetype)initWithMessage:(EMMessage *)message;
 

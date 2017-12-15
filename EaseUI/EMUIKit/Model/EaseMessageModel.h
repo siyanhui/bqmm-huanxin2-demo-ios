@@ -11,6 +11,18 @@
 #import "IMessageModel.h"
 #import "EMMessage.h"
 
+#define TEXT_MESG_TYPE @"txt_msgType"  //key for text message
+#define TEXT_MESG_FACE_TYPE @"facetype" //key for big emoji type
+#define TEXT_MESG_EMOJI_TYPE @"emojitype" //key for photo-text message
+#define TEXT_MESG_WEB_TYPE @"webtype" //key for web sticker message
+#define TEXT_MESG_DATA @"msg_data"  //key for ext data of message
+
+#define WEBSTICKER_IS_GIF @"is_gif"  //key for web sticker is gif or not
+#define WEBSTICKER_ID @"data_id"  //key for web sticker id
+#define WEBSTICKER_URL @"sticker_url"  //key for web sticker url
+#define WEBSTICKER_HEIGHT @"h"  //key for web sticker height
+#define WEBSTICKER_WIDTH @"w"  //key for web sticker width
+
 @interface EaseMessageModel : NSObject<IMessageModel>
 
 //缓存数据模型对应的cell的高度，只需要计算一次并赋值，以后就无需计算了
@@ -94,6 +106,7 @@
 
 //BQMM集成
 @property (strong, nonatomic) NSDictionary *mmExt;
+@property (nonatomic) CGSize gifSize;
 
 - (instancetype)initWithMessage:(EMMessage *)message;
 

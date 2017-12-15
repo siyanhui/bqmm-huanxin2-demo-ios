@@ -136,6 +136,11 @@
 
 //BQMM集成
 /**
+ *  点击Gif tab
+ */
+- (void)didClickGifTab;
+
+/**
  *  发送表情MM大表情
  *
  *  @param emoji 表情对象

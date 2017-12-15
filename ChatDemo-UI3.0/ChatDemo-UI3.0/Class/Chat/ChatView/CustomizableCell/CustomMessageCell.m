@@ -10,6 +10,7 @@
 #import "EMBubbleView+Gif.h"
 #import "EMGifImage.h"
 #import "UIImageView+HeadImage.h"
+#import "UIImageView+WebCache.h"
 
 #import "EaseMob.h"
 
@@ -45,6 +46,8 @@
                 flag = YES;
             }
             else if ([model.mmExt[@"txt_msgType"] isEqualToString:@"facetype"]) {
+                flag = YES;
+            }else if ([model.mmExt[TEXT_MESG_TYPE] isEqualToString:TEXT_MESG_WEB_TYPE]) {
                 flag = YES;
             }
         }
@@ -85,6 +88,31 @@
             }
         }];
         
+    }else if ([model.mmExt[TEXT_MESG_TYPE] isEqualToString:TEXT_MESG_WEB_TYPE]) {
+        self.bubbleView.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        self.bubbleView.imageView.image = [UIImage imageNamed:@"mm_emoji_loading"];
+        NSDictionary *msgData = model.mmExt[TEXT_MESG_DATA];
+        NSString *webStickerUrl = msgData[WEBSTICKER_URL];
+        NSURL *url = [[NSURL alloc] initWithString:webStickerUrl];
+        if (url != nil) {
+            __weak typeof(self) weakSelf = self;
+            [self.bubbleView.imageView sd_setImageWithURL:url placeholderImage:nil options:SDWebImageAvoidAutoSetImage completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                if(error == nil && image) {
+                    if (image.images.count > 1) {
+                        weakSelf.bubbleView.imageView.animationImages = image.images;
+                        weakSelf.bubbleView.imageView.image = image.images[0];
+                        weakSelf.bubbleView.imageView.animationDuration = image.duration;
+                        [weakSelf.bubbleView.imageView startAnimating];
+                    }else{
+                        weakSelf.bubbleView.imageView.image = image;
+                    }
+                }else{
+                    weakSelf.bubbleView.imageView.image = [UIImage imageNamed:@"mm_emoji_error"];
+                }
+            }];
+        }else{
+            self.bubbleView.imageView.image = [UIImage imageNamed:@"mm_emoji_error"];
+        }
     }
     
     if (model.avatarURLPath) {
@@ -105,7 +133,7 @@
     else if ([model.mmExt[@"txt_msgType"] isEqualToString:@"emojitype"]) {
         [_bubbleView setupMMTextBubbleViewWithModel:model];
     }
-    else if ([model.mmExt[@"txt_msgType"] isEqualToString:@"facetype"]) {
+    else if ([model.mmExt[@"txt_msgType"] isEqualToString:@"facetype"] || [model.mmExt[TEXT_MESG_TYPE] isEqualToString:TEXT_MESG_WEB_TYPE]) {
         [_bubbleView setupGifBubbleView];
         
         _bubbleView.imageView.image = [UIImage imageNamed:model.failImageName];
@@ -118,7 +146,7 @@
     if ([model.mmExt[@"txt_msgType"] isEqualToString:@"emojitype"]) {
         [_bubbleView updateMMTextMargin:bubbleMargin];
     }
-    else if ([model.mmExt[@"txt_msgType"] isEqualToString:@"facetype"]) {
+    else if ([model.mmExt[@"txt_msgType"] isEqualToString:@"facetype"] || [model.mmExt[TEXT_MESG_TYPE] isEqualToString:TEXT_MESG_WEB_TYPE]) {
         [_bubbleView updateGifMargin:bubbleMargin];
     }
 
@@ -135,6 +163,8 @@
     }
     else if ([model.mmExt[@"txt_msgType"] isEqualToString:@"facetype"]) {
         return model.isSender?@"EaseMessageCellSendGif":@"EaseMessageCellRecvGif";
+    }else if([model.mmExt[TEXT_MESG_TYPE] isEqualToString:TEXT_MESG_WEB_TYPE]) {
+        return model.isSender?@"EaseMessageCellSendWebSticker":@"EaseMessageCellRecvWebSticker";
     }
     else {
         NSString *identifier = [EaseBaseMessageCell cellIdentifierWithModel:model];
@@ -150,6 +180,8 @@
     }
     else if ([model.mmExt[@"txt_msgType"] isEqualToString:@"facetype"]) {
         return kEMMessageImageSizeHeight;
+    }else if([model.mmExt[TEXT_MESG_TYPE] isEqualToString:TEXT_MESG_WEB_TYPE]) {
+        return model.gifSize.height;
     }
     else {
         CGFloat height = [EaseBaseMessageCell cellHeightWithModel:model];
