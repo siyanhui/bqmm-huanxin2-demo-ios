@@ -958,7 +958,20 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return [self tableView:tableView heightForRowAtIndexPath:indexPath];
+    id object = [self.dataArray objectAtIndex:indexPath.row];
+    if ([object isKindOfClass:[NSString class]]) {
+        return self.timeCellHeight;
+    }
+    else{
+        id<IMessageModel> model = object;
+        if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:heightForMessageModel:withCellWidth:)]) {
+            CGFloat height = [_delegate messageViewController:self heightForMessageModel:model withCellWidth:tableView.frame.size.width];
+            if (height) {
+                return height;
+            }
+        }
+        return [EaseBaseMessageCell cellHeightWithModel:model];
+    }
 }
 
 #pragma mark - UIImagePickerControllerDelegate
@@ -1019,9 +1032,10 @@
         {
             if ([model.mmExt[@"txt_msgType"] isEqualToString:@"facetype"]) {
                 [self.chatToolbar endEditing:YES];
-                UIViewController *emojiController = [[MMEmotionCentre defaultCentre] controllerForEmotionCode:model.mmExt[@"msg_data"][0][0]];
-                [self.navigationController pushViewController:emojiController animated:YES];
+            }else if ([model.mmExt[TEXT_MESG_TYPE] isEqualToString: TEXT_MESG_WEB_TYPE]) {
+                [self.chatToolbar endEditing:YES];
             }
+
         }
             break;
 

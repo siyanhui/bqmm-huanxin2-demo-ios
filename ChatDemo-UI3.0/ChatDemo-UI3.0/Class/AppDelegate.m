@@ -63,11 +63,16 @@
     
     //BQMM集成
     // 初始化表情MMSDK
-//    [[MMEmotionCentre defaultCentre] setAppId:@"appId"
-//                                       secret:@"appSecret"];
-    [[MMEmotionCentre defaultCentre] setAppId:@"15e0710942ec49a29d2224a6af4460ee"
-                                       secret:@"b11e0936a9d04be19300b1d6eec0ccd5"];
-
+    [[MMEmotionCentre defaultCentre] setAppId:@"appId"
+                                       secret:@"appSecret"];
+    MMTheme *theme = [[MMTheme alloc] init];
+    CGFloat keyboardHeight = 216;
+    if ([[UIScreen mainScreen] bounds].size.height == 812) {
+        keyboardHeight = 250;
+    }
+    theme.keyboardHeight = keyboardHeight;
+    
+    [[MMEmotionCentre defaultCentre] setTheme:theme];
     
     //初始化bugly
     [Bugly startWithAppId:@"900019323"];
@@ -122,6 +127,18 @@ didFinishLaunchingWithOptions:launchOptions
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:RedpacketAlipayNotifaction object:nil];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    //BQMM集成
+    [[MMEmotionCentre defaultCentre] clearCache];
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    //BQMM集成
+    [[MMEmotionCentre defaultCentre] clearSession];
 }
 
 // NOTE: 9.0之前使用的API接口

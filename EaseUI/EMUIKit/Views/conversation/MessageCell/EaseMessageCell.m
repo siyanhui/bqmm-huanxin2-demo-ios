@@ -309,7 +309,7 @@ NSString *const EaseMessageCellIdentifierSendFile = @"EaseMessageCellSendFile";
                 if (!image) {
                     image = _model.image;
                     if (!image) {
-                        [_bubbleView.imageView sd_setImageWithURL:[NSURL URLWithString:_model.fileURLPath] placeholderImage:[UIImage imageNamed:_model.failImageName]];
+//                        [_bubbleView.imageView sd_setImageWithURL:[NSURL URLWithString:_model.fileURLPath] placeholderImage:[UIImage imageNamed:_model.failImageName]];
                     } else {
                         _bubbleView.imageView.image = image;
                     }
@@ -747,6 +747,18 @@ NSString *const EaseMessageCellIdentifierSendFile = @"EaseMessageCellSendFile";
                 CGSize size = [MMTextParser sizeForMMTextWithExtData:model.mmExt[@"msg_data"] font:textFont maximumTextWidth:bubbleMaxWidth];
                 
                 height += (size.height > 20 ? size.height : 20) + 4;
+            }
+            else if ([model.mmExt[TEXT_MESG_TYPE] isEqualToString:TEXT_MESG_FACE_TYPE]) {
+                //BQMM 集成 计算图片尺寸
+                CGSize size =
+                [MMImageView sizeForImageSize:CGSizeMake(kEMMessageImageSizeHeight, kEMMessageImageSizeHeight) imgMaxSize:CGSizeMake(kEMMessageImageSizeHeight, kEMMessageImageSizeHeight)];
+                height += size.height;
+            }else if([model.mmExt[TEXT_MESG_TYPE] isEqualToString:TEXT_MESG_WEB_TYPE]) {
+                //BQMM 集成 计算图片尺寸
+                //宽最大200 高最大 150
+                CGSize size =
+                [MMImageView sizeForImageSize:CGSizeMake(model.gifSize.width, model.gifSize.height) imgMaxSize:CGSizeMake(200, 150)];
+                height += size.height;
             }
             else {
                 NSString *text = model.text;

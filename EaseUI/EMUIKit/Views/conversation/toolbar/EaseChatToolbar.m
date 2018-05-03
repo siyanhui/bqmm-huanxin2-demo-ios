@@ -712,7 +712,6 @@
         item.button.selected = NO;
     }
     
-    //BQMM集成
     //替换成表情MM键盘
     if (button.selected) {
         self.moreButton.selected = NO;
@@ -723,6 +722,7 @@
         self.faceButton.selected = YES;
     }
     else {
+        //切换成普通键盘
         [[MMEmotionCentre defaultCentre] switchToDefaultKeyboard];
     }
 }
@@ -859,13 +859,7 @@
 //BQMM集成
 //表情MM代理
 #pragma mark - *MMEmotionCentreDelegate
-- (void)didClickGifTab {
-    self.faceButton.selected = NO;
-    if ([self.delegate respondsToSelector:@selector(didClickGifTab)]) {
-        [self.delegate didClickGifTab];
-    }
-}
-
+//点击键盘中大表情的代理
 - (void)didSelectEmoji:(MMEmoji *)emoji
 {
     if ([self.delegate respondsToSelector:@selector(didSendMMFace:)]) {
@@ -873,6 +867,7 @@
     }
 }
 
+//点击联想表情的代理 （`deprecated`）
 - (void)didSelectTipEmoji:(MMEmoji *)emoji
 {
     if ([self.delegate respondsToSelector:@selector(didSendMMFace:)]) {
@@ -881,6 +876,7 @@
     }
 }
 
+//点击小表情键盘上发送按钮的代理
 - (void)didSendWithInput:(UIResponder<UITextInput> *)input
 {
     if ([input isKindOfClass:[UITextView class]]) {
@@ -897,9 +893,18 @@
     }
 }
 
+//点击输入框切换表情按钮状态
 - (void)tapOverlay
 {
     self.faceButton.selected = NO;
+}
+
+//点击gifTab
+- (void)didClickGifTab {
+    self.faceButton.selected = NO;
+    if ([self.delegate respondsToSelector:@selector(didClickGifTab)]) {
+        [self.delegate didClickGifTab];
+    }
 }
 
 @end

@@ -37,7 +37,10 @@
 
 - (void)setupImageBubbleView
 {
-    self.imageView = [[UIImageView alloc] init];
+    //BQMM集成
+    self.imageView = [[MMImageView alloc] init];
+    //    self.imageView = [[UIImageView alloc] init];
+
     self.imageView.translatesAutoresizingMaskIntoConstraints = NO;
     self.imageView.backgroundColor = [UIColor clearColor];
     [self.backgroundImageView addSubview:self.imageView];
